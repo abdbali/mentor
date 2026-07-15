@@ -5,6 +5,8 @@ Mentor, öğretmenlerin yapay zekadan (ChatGPT, Gemini, Claude vb.) en yüksek v
 Yazılan ham fikirleri pedagojik kurallara, hedef sınıf düzeyine ve branş gereksinimlerine göre analiz eder; eksik bilgileri dinamik bir sihirbaz arayüzü ile tamamlatarak kopyalanmaya hazır profesyonel promptlar üretir.
 
 ---
+<img width="519" height="356" alt="image" src="https://github.com/user-attachments/assets/030a086a-368e-4d0e-808a-714dbc831b8d" />
+
 
 ## Öne Çıkan Özellikler
 
@@ -15,6 +17,9 @@ Yazılan ham fikirleri pedagojik kurallara, hedef sınıf düzeyine ve branş ge
 * **Tamamen Güvenli Yapı:** Chrome Uzantı Güvenlik Politikaları (CSP) ile tam uyumludur; satır içi (inline) JavaScript barındırmaz.
 
 ---
+<img width="531" height="200" alt="image" src="https://github.com/user-attachments/assets/423dfa99-8f5c-43f1-92fc-d7fb6ced7479" />
+
+<img width="525" height="158" alt="image" src="https://github.com/user-attachments/assets/10a8aaf1-aaab-4c40-a43f-f97a5210f41a" />
 
 ## Dosya Yapısı
 
