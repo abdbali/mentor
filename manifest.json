@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Mentor",
+  "version": "1.0",
+  "description": "Öğretmenler için yapay zeka promptlarını pedagojik kurallara göre optimize eder.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": ["clipboardWrite"]
+}
