@@ -1,25 +1,25 @@
-// --- NLP BRANŞ SÖZLÜĞÜ ---
+// --- NLP BRANŞ SÖZLÜĞÜ (TAMAMEN EMOJİSİZ) ---
 const Taxonomy = {
     matematik: {
         title: "Matematik",
         primary: ["matematik", "geometri", "sayı", "sayılar", "denklem", "problem", "toplama", "çarpma", "kesir", "üçgen", "açılar", "cebir", "fonksiyon", "çarpanlar", "katlar", "lgs", "mat"],
         secondary: ["soru", "sınav", "çözüm", "formul", "işlem", "test"],
         role: "uzman bir Matematik Öğretmeni ve soru hazırlama komisyonu üyesi",
-        feedback: "Matematik çalışması hazırlandı! Soruların pedagojik olarak hatasız, şıklarının doğru kurgulanması için tüm parametreleri optimize ettim."
+        feedback: "Matematik çalışması tespit edildi. Soruların bilimsel olarak hatasız, şıklarının ise doğru pedagojik çeldiricilerle kurgulanması amacıyla tüm parametreler optimize edildi."
     },
     turkce: {
         title: "Türkçe",
         primary: ["türkçe", "okuma", "metin", "paragraf", "edebiyat", "dil bilgisi", "şiir", "hikaye", "öykü", "yazım", "imla", "noktalama", "parçası", "anlama"],
         secondary: ["anlama", "özet", "soru", "kitap", "etkinlik"],
         role: "deneyimli bir Türkçe Öğretmeni ve çocuk edebiyatı uzmanı",
-        feedback: "Harika bir Türkçe/Edebiyat etkinliği! Yapay zekanın dil seviyesine ve kelime sınırlarına tam uyması için gerekli komutları ekledim."
+        feedback: "Türkçe/Edebiyat etkinliği tespit edildi. Yapay zekanın dil seviyesine ve kelime sınırlarına tam uyması amacıyla gerekli yönergeler eklendi."
     },
     fen: {
         title: "Fen Bilimleri",
         primary: ["fen", "deney", "fizik", "kimya", "biyoloji", "laboratuvar", "hücre", "element", "kuvvet", "enerji", "basınç", "güneş", "dünya", "fotosentez", "dna", "fen bilgisi"],
         secondary: ["etkinlik", "gözlem", "malzeme", "rapor", "soru", "sınav"],
         role: "alanında uzman bir Fen Bilimleri Öğretmeni ve laboratuvar koordinatörü",
-        feedback: "Fen Bilimleri çalışması planlandı! Deneylerin veya soruların günlük yaşam pratikleriyle eşleşmesi ve güvenlik uyarılarının eklenmesi sağlandı."
+        feedback: "Fen Bilimleri çalışması tespit edildi. Soruların veya deneylerin günlük yaşam pratikleriyle eşleşmesi ve bilimsel doğruluğu kontrol altına alındı."
     }
 };
 
@@ -32,30 +32,37 @@ let currentState = {
     format: "öğretici ve akıcı bir yapıda"
 };
 
-// --- DOSYA YÜKLENDİĞİNDE TETİKLENEN EVENT DINLEYICILER ---
+// --- EVENTS ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Enter tuşu ve Gönder butonu kontrolü
+    // 1. Tema Tercihini Yükle
+    initTheme();
+
+    // 2. Tema Değiştirme Butonu
+    document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+
+    // 3. Giriş Kontrolleri
     document.getElementById('submitBtn').addEventListener('click', processPrompt);
     document.getElementById('promptInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') processPrompt();
     });
 
-    // 2. Hazır test çipleri tıklama kontrolü
+    // 4. Öğretici Örnek Çiplerine Tıklama
     document.querySelectorAll('.test-chip').forEach(chip => {
         chip.addEventListener('click', (e) => {
-            const text = e.target.getAttribute('data-text');
+            const targetChip = e.currentTarget; // Parent div'i almak için
+            const text = targetChip.getAttribute('data-text');
             document.getElementById('promptInput').value = text;
             processPrompt();
         });
     });
 
-    // 3. Kopyalama Butonu
+    // 5. Kopyalama Butonu
     document.getElementById('copyBtn').addEventListener('click', copyPrompt);
 
-    // 4. Dinamik konu girişi takibi (Live update)
+    // 6. Dinamik Konu Girdisi
     document.getElementById('wizTopicInput').addEventListener('input', liveUpdatePrompt);
 
-    // 5. Sihirbaz içindeki Sınıf Pilleri (Pill buttons)
+    // 7. Sınıf Seçim Pilleri
     document.querySelectorAll('#wizGradePills .pill-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             setActivePill('wizGradePills', e.target);
@@ -64,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 6. Sihirbaz içindeki Soru Sayısı Pilleri
+    // 8. Soru Sayısı Seçim Pilleri
     document.querySelectorAll('#wizCountPills .pill-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             setActivePill('wizCountPills', e.target);
@@ -74,6 +81,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// --- AYDINLIK / KARANLIK TEMA YÖNETİMİ ---
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeButtonText(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeButtonText(newTheme);
+}
+
+function updateThemeButtonText(theme) {
+    const btnText = document.getElementById('themeToggleText');
+    if (theme === 'dark') {
+        btnText.innerText = "Aydınlık Tema";
+    } else {
+        btnText.innerText = "Karanlık Tema";
+    }
+}
+
 // --- ANA ANALİZ MOTORU ---
 function processPrompt() {
     const userInput = document.getElementById('promptInput').value.trim();
@@ -82,7 +113,7 @@ function processPrompt() {
     currentState.userInput = userInput;
     const lower = userInput.toLowerCase();
 
-    // Branş Tespiti
+    // 1. Branş Tespiti
     let detectedBranch = "genel";
     let maxScore = 0;
     const words = lower.split(/\s+/);
@@ -102,7 +133,7 @@ function processPrompt() {
     if (maxScore < 2) detectedBranch = "genel";
     currentState.branch = detectedBranch;
 
-    // Sınıf Seviyesi Tespiti
+    // 2. Sınıf Düzeyi Tespiti
     const gradeRegex = /(\d+)\s*(?:\.)?\s*(sınıf|sinif)/i;
     const gradeMatch = userInput.match(gradeRegex);
     if (gradeMatch) {
@@ -112,28 +143,28 @@ function processPrompt() {
     } else if (lower.includes("tyt") || lower.includes("ayt") || lower.includes("yks")) {
         currentState.grade = "Lise (YKS hazırlık) seviyesine";
     } else {
-        currentState.grade = ""; // Eksik!
+        currentState.grade = ""; // Boş ise sihirbaz tetiklenecek
     }
 
-    // Soru Sayısı Tespiti
+    // 3. Soru Sayısı Tespiti
     const countRegex = /(\d+)\s*(?:adet|tane)?\s*(soru|etkinlik|madde|problem)/i;
     const countMatch = userInput.match(countRegex);
     if (countMatch) {
         currentState.count = `Tam olarak ${countMatch[1]} adet ${countMatch[2]}`;
     } else {
-        currentState.count = ""; // Eksik!
+        currentState.count = ""; // Boş ise sihirbaz tetiklenecek
     }
 
-    // Konu/Kazanım Tespiti
-    const simpleKeywords = ["sınav", "sınavı", "soru", "sorusu", "hazırla", "etkinlik", "test"];
+    // 4. Konu Tespiti
+    const simpleKeywords = ["sınav", "sınavı", "soru", "sorusu", "hazırla", "etkinlik", "test", "hazırlığı"];
     const wordsWithoutSimple = words.filter(w => !simpleKeywords.includes(w) && w !== detectedBranch);
     if (wordsWithoutSimple.length <= 1) {
-        currentState.topic = ""; // Eksik!
+        currentState.topic = ""; // Boş ise sihirbaz tetiklenecek
     } else {
         currentState.topic = userInput;
     }
 
-    // Format Tespiti
+    // 5. Format Tespiti
     if (lower.includes("test") || lower.includes("şık") || lower.includes("seçmeli")) {
         currentState.format = "çoktan seçmeli, şıklı (A, B, C, D) test formatında";
     } else if (lower.includes("boşluk")) {
@@ -148,7 +179,7 @@ function processPrompt() {
     liveUpdatePrompt();
 }
 
-// --- EKSİK FORM KONTROLLERİ ---
+// --- SİHİRBAZ GÖRÜNÜMÜNÜ DETAYA GÖRE AYARLAMA ---
 function setupInteractiveWizard() {
     const wizContainer = document.getElementById('wizardContainer');
     const rowGrade = document.getElementById('rowGrade');
@@ -184,7 +215,7 @@ function setupInteractiveWizard() {
     wizContainer.style.display = hasMissing ? 'block' : 'none';
 }
 
-// --- ANLIK PROMPT OLUŞTURUCU ---
+// --- GERÇEK ZAMANLI PROMPT OLUŞTURUCU ---
 function liveUpdatePrompt() {
     document.getElementById('outputSection').style.display = 'block';
 
@@ -208,7 +239,8 @@ function liveUpdatePrompt() {
 [Kural]: Çıktıyı öğretmenlerin doğrudan kopyalayıp derste kullanabileceği netlikte, başlıklar halinde sun.`;
     } else {
         const data = Taxonomy[currentState.branch];
-        feedbackHTML = `<p>Mentor bu talebin bir <b>${data.title}</b> çalışması olduğunu belirledi. Eksik detayları yukarıdaki araçlarla tamamlayabilirsiniz:</p>`;
+        feedbackHTML = `<p>Mentor bu talebin bir <b>${data.title}</b> çalışması olduğunu belirledi. Eksik detayları yukarıdaki araçlarla tamamlayabilirsiniz.</p>
+        <p style="margin-top: 8px; font-style: italic; font-size: 0.8rem;">${data.feedback}</p>`;
         finalPrompt = `Sen ${data.role} uzmanısın.
 
 [Talep / Ana Fikir]: ${currentState.userInput}
@@ -226,7 +258,7 @@ function liveUpdatePrompt() {
     document.getElementById('improvedContent').innerText = finalPrompt;
 }
 
-// --- YARDIMCI GÖRSEL KONTROLLER ---
+// --- YARDIMCI PİLL FONKSİYONLARI ---
 function setActivePill(groupId, activeBtn) {
     document.querySelectorAll(`#${groupId} .pill-btn`).forEach(btn => btn.classList.remove('active'));
     activeBtn.classList.add('active');
