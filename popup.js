@@ -1,4 +1,4 @@
-// --- NLP BRANŞ SÖZLÜĞÜ (TAMAMEN EMOJİSİZ) ---
+// --- NLP BRANŞ SÖZLÜĞÜ ---
 const Taxonomy = {
     matematik: {
         title: "Matematik",
@@ -32,37 +32,57 @@ let currentState = {
     format: "öğretici ve akıcı bir yapıda"
 };
 
-// --- EVENTS ---
+// --- GÜNEŞ VE AY SVG İKONLARI ---
+const sunIcon = `
+    <svg class="theme-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+`;
+
+const moonIcon = `
+    <svg class="theme-icon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+`;
+
+// --- OYUN KURUCU ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Tema Tercihini Yükle
     initTheme();
 
-    // 2. Tema Değiştirme Butonu
+    // Tema değiştirme tıklandığında
     document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
 
-    // 3. Giriş Kontrolleri
+    // Giriş butonları
     document.getElementById('submitBtn').addEventListener('click', processPrompt);
     document.getElementById('promptInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') processPrompt();
     });
 
-    // 4. Öğretici Örnek Çiplerine Tıklama
+    // Öğretici çiplerin dinlenmesi
     document.querySelectorAll('.test-chip').forEach(chip => {
         chip.addEventListener('click', (e) => {
-            const targetChip = e.currentTarget; // Parent div'i almak için
+            const targetChip = e.currentTarget;
             const text = targetChip.getAttribute('data-text');
             document.getElementById('promptInput').value = text;
             processPrompt();
         });
     });
 
-    // 5. Kopyalama Butonu
+    // Kopyalama butonu
     document.getElementById('copyBtn').addEventListener('click', copyPrompt);
 
-    // 6. Dinamik Konu Girdisi
+    // Canlı metin güncelleme
     document.getElementById('wizTopicInput').addEventListener('input', liveUpdatePrompt);
 
-    // 7. Sınıf Seçim Pilleri
+    // Seçenek pilleri
     document.querySelectorAll('#wizGradePills .pill-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             setActivePill('wizGradePills', e.target);
@@ -71,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 8. Soru Sayısı Seçim Pilleri
     document.querySelectorAll('#wizCountPills .pill-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             setActivePill('wizCountPills', e.target);
@@ -81,11 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// --- AYDINLIK / KARANLIK TEMA YÖNETİMİ ---
+// --- TEMA YÖNETİMİ ---
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeButtonText(savedTheme);
+    updateThemeIcon(savedTheme);
 }
 
 function toggleTheme() {
@@ -93,19 +112,20 @@ function toggleTheme() {
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    updateThemeButtonText(newTheme);
+    updateThemeIcon(newTheme);
 }
 
-function updateThemeButtonText(theme) {
-    const btnText = document.getElementById('themeToggleText');
+function updateThemeIcon(theme) {
+    const btn = document.getElementById('themeToggleBtn');
+    // Eğer tema karanlıksa, butona aydınlığa geçmek için Güneş ikonu koyulur
     if (theme === 'dark') {
-        btnText.innerText = "Aydınlık Tema";
+        btn.innerHTML = sunIcon;
     } else {
-        btnText.innerText = "Karanlık Tema";
+        btn.innerHTML = moonIcon;
     }
 }
 
-// --- ANA ANALİZ MOTORU ---
+// --- DOĞAL DİL ANALİZİ ---
 function processPrompt() {
     const userInput = document.getElementById('promptInput').value.trim();
     if (!userInput) return;
@@ -113,7 +133,6 @@ function processPrompt() {
     currentState.userInput = userInput;
     const lower = userInput.toLowerCase();
 
-    // 1. Branş Tespiti
     let detectedBranch = "genel";
     let maxScore = 0;
     const words = lower.split(/\s+/);
@@ -133,7 +152,6 @@ function processPrompt() {
     if (maxScore < 2) detectedBranch = "genel";
     currentState.branch = detectedBranch;
 
-    // 2. Sınıf Düzeyi Tespiti
     const gradeRegex = /(\d+)\s*(?:\.)?\s*(sınıf|sinif)/i;
     const gradeMatch = userInput.match(gradeRegex);
     if (gradeMatch) {
@@ -143,28 +161,25 @@ function processPrompt() {
     } else if (lower.includes("tyt") || lower.includes("ayt") || lower.includes("yks")) {
         currentState.grade = "Lise (YKS hazırlık) seviyesine";
     } else {
-        currentState.grade = ""; // Boş ise sihirbaz tetiklenecek
+        currentState.grade = ""; 
     }
 
-    // 3. Soru Sayısı Tespiti
     const countRegex = /(\d+)\s*(?:adet|tane)?\s*(soru|etkinlik|madde|problem)/i;
     const countMatch = userInput.match(countRegex);
     if (countMatch) {
         currentState.count = `Tam olarak ${countMatch[1]} adet ${countMatch[2]}`;
     } else {
-        currentState.count = ""; // Boş ise sihirbaz tetiklenecek
+        currentState.count = ""; 
     }
 
-    // 4. Konu Tespiti
     const simpleKeywords = ["sınav", "sınavı", "soru", "sorusu", "hazırla", "etkinlik", "test", "hazırlığı"];
     const wordsWithoutSimple = words.filter(w => !simpleKeywords.includes(w) && w !== detectedBranch);
     if (wordsWithoutSimple.length <= 1) {
-        currentState.topic = ""; // Boş ise sihirbaz tetiklenecek
+        currentState.topic = ""; 
     } else {
         currentState.topic = userInput;
     }
 
-    // 5. Format Tespiti
     if (lower.includes("test") || lower.includes("şık") || lower.includes("seçmeli")) {
         currentState.format = "çoktan seçmeli, şıklı (A, B, C, D) test formatında";
     } else if (lower.includes("boşluk")) {
@@ -179,7 +194,6 @@ function processPrompt() {
     liveUpdatePrompt();
 }
 
-// --- SİHİRBAZ GÖRÜNÜMÜNÜ DETAYA GÖRE AYARLAMA ---
 function setupInteractiveWizard() {
     const wizContainer = document.getElementById('wizardContainer');
     const rowGrade = document.getElementById('rowGrade');
@@ -215,7 +229,6 @@ function setupInteractiveWizard() {
     wizContainer.style.display = hasMissing ? 'block' : 'none';
 }
 
-// --- GERÇEK ZAMANLI PROMPT OLUŞTURUCU ---
 function liveUpdatePrompt() {
     document.getElementById('outputSection').style.display = 'block';
 
@@ -239,7 +252,7 @@ function liveUpdatePrompt() {
 [Kural]: Çıktıyı öğretmenlerin doğrudan kopyalayıp derste kullanabileceği netlikte, başlıklar halinde sun.`;
     } else {
         const data = Taxonomy[currentState.branch];
-        feedbackHTML = `<p>Mentor bu talebin bir <b>${data.title}</b> çalışması olduğunu belirledi. Eksik detayları yukarıdaki araçlarla tamamlayabilirsiniz.</p>
+        feedbackHTML = `<p>Mentor bu talebin bir ${data.title} çalışması olduğunu belirledi. Eksik detayları yukarıdaki araçlarla tamamlayabilirsiniz.</p>
         <p style="margin-top: 8px; font-style: italic; font-size: 0.8rem;">${data.feedback}</p>`;
         finalPrompt = `Sen ${data.role} uzmanısın.
 
@@ -258,7 +271,6 @@ function liveUpdatePrompt() {
     document.getElementById('improvedContent').innerText = finalPrompt;
 }
 
-// --- YARDIMCI PİLL FONKSİYONLARI ---
 function setActivePill(groupId, activeBtn) {
     document.querySelectorAll(`#${groupId} .pill-btn`).forEach(btn => btn.classList.remove('active'));
     activeBtn.classList.add('active');
