@@ -68,11 +68,20 @@
             color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        .logo-icon {
-            font-size: 1.3rem;
+        .logo-indicator {
+            width: 10px;
+            height: 10px;
+            background: var(--gradient);
+            border-radius: 50%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .badge {
@@ -83,6 +92,35 @@
             padding: 4px 10px;
             border-radius: 99px;
             border: 1px solid rgba(124, 58, 237, 0.15);
+        }
+
+        /* SVG Tema Butonu */
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-icon {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         /* Giriş Kutusu */
@@ -303,7 +341,7 @@
             color: white;
         }
 
-        /* Tema Değiştirici Alt Alan */
+        /* Footer Alt Alanı */
         .footer {
             margin-top: 1.5rem;
             border-top: 1px solid var(--border-color);
@@ -313,30 +351,30 @@
             align-items: center;
         }
 
-        .theme-toggle-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-dark);
-            padding: 6px 12px;
-            border-radius: 8px;
+        .rating-link {
             font-size: 0.75rem;
+            color: var(--primary);
+            text-decoration: none;
             font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            transition: color 0.2s;
         }
 
-        .theme-toggle-btn:hover {
-            border-color: var(--primary);
+        .rating-link:hover {
+            text-decoration: underline;
+            color: var(--text-dark);
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo"><span class="logo-icon">👾</span>Mentor</div>
-        <span class="badge">Eğitim Asistanı</span>
+        <div class="logo"><div class="logo-indicator"></div>Mentor</div>
+        <div class="header-actions">
+            <span class="badge">Eğitim Asistanı</span>
+            <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Temayı Değiştir">
+                <!-- SVG ikon alanı dinamik olarak JS tarafından doldurulacaktır -->
+            </button>
+        </div>
     </div>
 
     <!-- Giriş Alanı -->
@@ -354,15 +392,15 @@
     <div class="test-chips">
         <div class="test-chip" data-text="Fen bilimleri hücre konusu sınav hazırlığı">
             <strong>"Fen bilimleri hücre konusu sınav hazırlığı"</strong>
-            <span class="test-chip-meta">Mentor dersi ve konuyu anlar, sınıf düzeyi ve soru sayısı eksik olduğu için sihirbazı açar.</span>
+            <span class="test-chip-meta">Ders ve konu tespit edilir, eksik olan sınıf düzeyi ve soru sayısı için sihirbaz açılır.</span>
         </div>
         <div class="test-chip" data-text="8. sınıf LGS matematik üslü sayılar yeni nesil 10 soru">
             <strong>"8. sınıf LGS matematik üslü sayılar yeni nesil 10 soru"</strong>
-            <span class="test-chip-meta">Hiçbir eksik bilgi yoktur. Mentor tüm parametreleri (8. Sınıf, 10 Soru, Matematik) cımbızla çekip tam prompt üretir.</span>
+            <span class="test-chip-meta">Tüm parametreler eksiksizdir. Mentor doğrudan tam yapılandırılmış nihai promptu üretir.</span>
         </div>
         <div class="test-chip" data-text="Türkçe okuma metni ve 3 soru istiyorum">
             <strong>"Türkçe okuma metni ve 3 soru istiyorum"</strong>
-            <span class="test-chip-meta">Mentor Türkçe dersini ve 3 soru hedefini yakalar, sınıf düzeyi eksik olduğu için sadece onu sorar.</span>
+            <span class="test-chip-meta">Türkçe alanı ve soru sayısı belirlenir, eksik olan sınıf seviyesini seçmeniz istenir.</span>
         </div>
     </div>
 
@@ -410,12 +448,9 @@
         </div>
     </section>
 
-    <!-- Tema ve Footer Alanı -->
+    <!-- Footer Alanı -->
     <div class="footer">
-        <span style="font-size: 0.72rem; color: var(--text-muted);">Akıllı Prompt Asistanı v1.0</span>
-        <button class="theme-toggle-btn" id="themeToggleBtn">
-            <span id="themeToggleText">Karanlık Tema</span>
-        </button>
+        <a href="https://chromewebstore.google.com/" target="_blank" class="rating-link" id="storeLink">Mentor Uzantısını Değerlendir</a>
     </div>
 
     <script src="popup.js"></script>
