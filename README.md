@@ -53,7 +53,10 @@ Herhangi bir sihirbaz açılmasına gerek kalmadan doğrudan mükemmel yapıland
 
 Lisans
 Bu proje MIT Lisansı ile lisanslanmıştır. Eğitim süreçlerini kolaylaştırmak amacıyla özgürce geliştirilebilir ve dağıtılabilir.
+---
+
 <img width="244" height="212" alt="image" src="https://github.com/user-attachments/assets/f6ee8252-6428-4e65-9a10-dd727c1d66a7" />
+
 
 https://chromewebstore.google.com/detail/iioebbkebiemhbdmkpkhcckkojlahlfa/error?utm_source=item-share-cb
 
